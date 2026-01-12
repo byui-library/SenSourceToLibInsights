@@ -3,36 +3,27 @@
 ## Build/Lint/Test Commands
 
 ### Main Pipeline Execution
-- **Full pipeline (VEA + LibInsights)**: `run_full_pipeline.bat` (extracts VEA data and imports to LibInsights)
-- **Daily pipeline (scheduled)**: `run_daily_pipeline.bat` (extracts yesterday's data and imports - for Task Scheduler)
-- **VEA extraction only**: `run_export.bat` (runs VEA data extraction and CSV conversion)
-- **LibInsights import only**: `run_import.bat` (imports existing CSVs to LibInsights)
-- **Setup**: `setup.bat` (configures secure VEA credentials)
+- **Daily pipeline (scheduled)**: `run_daily_pipeline.bat` (extracts previous day's data and imports - for Task Scheduler)
+- **Full pipeline (manual)**: `run_full_pipeline.bat` (extracts VEA data and imports to LibInsights)
+- **Setup all credentials**: `setup.bat` (configures VEA + LibInsights credentials)
 
 ### PowerShell Script Execution
 - **Daily export (yesterday)**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-VEA-Export.ps1"`
 - **Daily export (specific date)**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-VEA-Export.ps1" -SpecificDate "2026-01-10"`
 - **Daily import**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-LibInsights-Import.ps1"`
-- **Individual sensor extraction**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1"` (generates both JSON and CSV files)
-- **Custom date extraction (parameter)**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1" -StartDate "2025-10-21T00:00:00Z" -EndDate "2025-12-31T23:59:59Z"`
-- **Custom date extraction (interactive)**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor-Custom.ps1"`
-- **LibInsights import**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1"`
-- **LibInsights import (dry run)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -DryRun`
-- **LibInsights import (gate counts only)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -GateCountsOnly`
-- **LibInsights import (occupancy only)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -OccupancyOnly`
+- **Daily import (dry run)**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-LibInsights-Import.ps1" -DryRun`
+- **Custom date extraction**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1" -StartDate "2025-10-21T00:00:00Z" -EndDate "2025-12-31T23:59:59Z"`
 
 ### Credential Management
-- **VEA interactive setup**: `setup.bat` (prompts for VEA credentials)
-- **VEA automated setup**: `powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ClientId "id" -ClientSecret "secret" -UseEnvironmentVariables`
+- **Setup both credentials**: `setup.bat` (prompts for VEA + LibInsights credentials)
+- **VEA automated setup**: `powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ClientId "id" -ClientSecret "secret"`
 - **VEA reset credentials**: `powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ResetCredentials`
-- **LibInsights credentials**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-API-Explorer.ps1" -SaveCredentials`
-- **LibInsights auth test**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-API-Explorer.ps1" -TestOnly`
+- **LibInsights credentials only**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-API-Explorer.ps1" -SaveCredentials`
 
-### Testing Single Components
-- **API authentication test**: `powershell -ExecutionPolicy Bypass -File "archive\vea_auth_test.ps1"`
-- **Data extraction test**: `powershell -ExecutionPolicy Bypass -File "archive\vea_clean_test.ps1"`
+### Testing
+- **Test daily export**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-VEA-Export.ps1"`
+- **Test daily import (dry run)**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-LibInsights-Import.ps1" -DryRun`
 - **Credential verification**: `powershell -ExecutionPolicy Bypass -File "scripts\test-credentials-simple.ps1"`
-- **LibInsights single record test**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -TestSingle`
 
 ## Code Style Guidelines
 
