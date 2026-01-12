@@ -3,22 +3,30 @@
 ## Build/Lint/Test Commands
 
 ### Main Pipeline Execution
-- **Full pipeline**: `run_export.bat` (runs complete VEA data extraction and CSV conversion)
-- **Setup**: `setup.bat` (configures secure credentials)
+- **Full pipeline (VEA + LibInsights)**: `run_full_pipeline.bat` (extracts VEA data and imports to LibInsights)
+- **VEA extraction only**: `run_export.bat` (runs VEA data extraction and CSV conversion)
+- **LibInsights import only**: `run_import.bat` (imports existing CSVs to LibInsights)
+- **Setup**: `setup.bat` (configures secure VEA credentials)
 
 ### PowerShell Script Execution
 - **Individual sensor extraction**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1"` (generates both JSON and CSV files)
 - **Custom date extraction**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor-Custom.ps1"`
+- **LibInsights import**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1"`
+- **LibInsights import (dry run)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -DryRun`
+- **LibInsights import (gate counts only)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -GateCountsOnly`
 
 ### Credential Management
-- **Interactive setup**: `setup.bat` (prompts for credentials)
-- **Automated setup**: `powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ClientId "id" -ClientSecret "secret" -UseEnvironmentVariables`
-- **Reset credentials**: `powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ResetCredentials`
+- **VEA interactive setup**: `setup.bat` (prompts for VEA credentials)
+- **VEA automated setup**: `powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ClientId "id" -ClientSecret "secret" -UseEnvironmentVariables`
+- **VEA reset credentials**: `powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ResetCredentials`
+- **LibInsights credentials**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-API-Explorer.ps1" -SaveCredentials`
+- **LibInsights auth test**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-API-Explorer.ps1" -TestOnly`
 
 ### Testing Single Components
 - **API authentication test**: `powershell -ExecutionPolicy Bypass -File "archive\vea_auth_test.ps1"`
 - **Data extraction test**: `powershell -ExecutionPolicy Bypass -File "archive\vea_clean_test.ps1"`
 - **Credential verification**: `powershell -ExecutionPolicy Bypass -File "scripts\test-credentials-simple.ps1"`
+- **LibInsights single record test**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -TestSingle`
 
 ## Code Style Guidelines
 

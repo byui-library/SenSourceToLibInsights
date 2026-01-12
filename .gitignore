@@ -1,6 +1,8 @@
 # Ignore sensitive configuration
 credentials.txt
 .env
+scripts/libinsights_credentials.xml
+scripts/*_credentials.xml
 
 # Ignore output data files (but allow folder structure)
 output/csv/*.csv

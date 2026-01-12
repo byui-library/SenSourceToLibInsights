@@ -141,3 +141,125 @@ Add `-Verbose` parameter to any script for detailed logging:
 - **Main script directly**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1"`
 - **Custom dates**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor-Custom.ps1"`
 - **Setup credentials**: `setup.bat`
+
+---
+
+## LibInsights Integration Scripts
+
+### 3. LibInsights-Importer.ps1
+
+**Purpose**: Import VEA gate count and occupancy data from CSV files directly into LibInsights via API
+
+**How it Works**:
+1. **Authentication**: Uses OAuth 2.0 with stored LibInsights credentials
+2. **File Discovery**: Scans output/csv/gate_counts/ and output/csv/occupancy/ directories
+3. **Gate Mapping**: Maps CSV filenames to LibInsights gate_id values
+4. **Batch Import**: Sends records in batches (default 100) to avoid rate limiting
+5. **Error Handling**: Reports success/failure counts per file
+
+**Usage**:
+```powershell
+# Import all data (gate counts + occupancy)
+.\LibInsights-Importer.ps1
+
+# Import only gate counts
+.\LibInsights-Importer.ps1 -GateCountsOnly
+
+# Import only occupancy data
+.\LibInsights-Importer.ps1 -OccupancyOnly
+
+# Preview without importing (dry run)
+.\LibInsights-Importer.ps1 -DryRun
+
+# Test with single record per file
+.\LibInsights-Importer.ps1 -TestSingle
+
+# Custom batch size
+.\LibInsights-Importer.ps1 -BatchSize 50
+```
+
+**Gate ID Mapping**:
+| CSV Pattern | LibInsights Gate ID | VEA Sensor |
+|-------------|---------------------|------------|
+| West Wing Level 1 East Side | 12 | McKay_Library_Level_1_Main_Entrance_1 |
+| West Wing Level 1 West Side | 13 | McKay_Library_Level_1_New_Entrance |
+| West Wing Level 2 Stairs | 14 | McKay_Library_Level_2_Stairs |
+| West Wing Level 3 Bridge | 15 | McKay_Library_Level_3_Bridge |
+| West Wing Level 3 Stairs | 16 | McKay_Library_Level_3_Stairs |
+
+**API Details**:
+- **Base URL**: https://byui.libinsight.com/v1.0
+- **Endpoint**: POST /gate-count/{dataset_id}/save
+- **Dataset ID**: 43702 (SenSource Gate Count By Entrance)
+- **Format**: JSON array with gate_id, date, gate_start, gate_end (optional)
+
+---
+
+### 4. LibInsights-API-Explorer.ps1
+
+**Purpose**: Discover and test LibInsights API endpoints, manage credentials
+
+**Usage**:
+```powershell
+# Save LibInsights credentials (first-time setup)
+.\LibInsights-API-Explorer.ps1 -SaveCredentials
+
+# Test authentication only
+.\LibInsights-API-Explorer.ps1 -TestOnly
+
+# Full exploration (discover gate IDs, sample data)
+.\LibInsights-API-Explorer.ps1
+```
+
+**Output Files**:
+- `output/json/libinsights_gate_count_libraries.json` - Gate configurations
+- `output/json/libinsights_gate_count_overview.json` - Dataset overview
+- `output/json/libinsights_occupancy_fields.json` - Occupancy field definitions
+
+---
+
+## Batch Files
+
+### run_full_pipeline.bat
+
+**Purpose**: Complete end-to-end automation from VEA extraction to LibInsights import
+
+**Steps**:
+1. Extract VEA sensor data (current year to date)
+2. Generate CSV files for gate counts and occupancy
+3. Import all data into LibInsights
+
+### run_import.bat
+
+**Purpose**: Import existing CSV files to LibInsights without re-extracting from VEA
+
+**Options**:
+1. Import all (gate counts + occupancy)
+2. Import gate counts only
+3. Import occupancy only
+4. Dry run (preview only)
+5. Cancel
+
+---
+
+## Complete Data Flow Pipeline
+
+```
+1. VEA-Zone-Extractor.ps1 (or run_export.bat)
+   ↓ Authenticates with VEA API
+   ↓ Extracts zone data (default: last 7 days)
+   ↓ Creates: JSON files in output/json/
+   ↓ Creates: CSV files in output/csv/gate_counts/ and output/csv/occupancy/
+
+2. LibInsights-Importer.ps1 (or run_import.bat)
+   ↓ Authenticates with LibInsights API
+   ↓ Reads CSV files from output/csv/
+   ↓ Maps filenames to LibInsights gate_id
+   ↓ POSTs data in batches to LibInsights
+   ↓ Reports success/failure counts
+
+3. run_full_pipeline.bat (Combined)
+   ↓ Runs VEA extraction
+   ↓ Runs LibInsights import
+   ↓ Complete automation in one command
+```

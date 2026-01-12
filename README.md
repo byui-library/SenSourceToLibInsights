@@ -109,8 +109,41 @@ Register-ScheduledTask -TaskName "VEA Daily Export" -Action $action -Trigger $tr
 - **🌐 Network-aware**: Only runs when network is available
 
 ### Step 4: Import to Springshare
+
+#### **🤖 Automated API Import (Recommended)**
+```batch
+run_import.bat
+```
+This interactive script provides options to:
+- Import all data (gate counts + occupancy)
+- Import gate counts only
+- Import occupancy only
+- Preview with dry run
+
+#### **Full Pipeline (Extraction + Import)**
+```batch
+run_full_pipeline.bat
+```
+Runs complete automation:
+1. Extract VEA sensor data
+2. Generate CSV files
+3. Import directly to LibInsights via API
+
+#### **Direct Script Execution**
+```powershell
+# Import all data
+.\scripts\LibInsights-Importer.ps1
+
+# Dry run (preview only)
+.\scripts\LibInsights-Importer.ps1 -DryRun
+
+# Gate counts only
+.\scripts\LibInsights-Importer.ps1 -GateCountsOnly
+```
+
+#### **Manual CSV Import (Legacy)**
 - Use the CSV files from `output\csv\` folder
-- Import each sensor CSV file separately in LibInsights
+- Import each sensor CSV file separately in LibInsights web interface
 
 ## Prerequisites
 
@@ -129,13 +162,22 @@ vea-springshare-api/
 │   ├── setup-automated.ps1      # Automated credential setup
 │   ├── test-credentials.ps1      # Credential validation test
 │   ├── VEA-Zone-Extractor.ps1    # Main data extraction script
-│   └── VEA-Zone-Extractor-Custom.ps1 # Custom date extraction
+│   ├── VEA-Zone-Extractor-Custom.ps1 # Custom date extraction
+│   ├── LibInsights-Importer.ps1   # LibInsights API import script
+│   └── LibInsights-API-Explorer.ps1 # API discovery/testing tool
 ├── output/                     # Generated data files
 │   ├── csv/                   # Springshare-ready CSV files
+│   │   ├── gate_counts/       # Gate count CSVs
+│   │   └── occupancy/         # Occupancy CSVs
 │   └── json/                  # Raw VEA zone data
 ├── docs/                      # Documentation and templates
+│   ├── LibInsights-API.md     # LibInsights API reference
+│   ├── SCRIPTS.md             # Script documentation
+│   └── TROUBLESHOOTING.md     # Troubleshooting guide
 ├── archive/                   # Development/test scripts
-├── run_export.bat            # Main execution script
+├── run_export.bat            # VEA data extraction script
+├── run_import.bat            # LibInsights import menu
+├── run_full_pipeline.bat     # Complete VEA → LibInsights automation
 ├── setup.bat                 # Secure setup script
 └── README.md                 # This file
 ```
@@ -207,26 +249,39 @@ For technical issues or questions:
 - **Robust pipeline**: Error handling, retries, validation, cleanup
 - **Springshare compatible**: CSV format matches LibInsights requirements
 
-### ✅ LibInsights Integration - **COMPLETED** 
-- **CSV Import**: Successfully tested with LibInsights CSV import feature
-- **Format compatibility**: Proper date/time columns, timezone conversion (UTC → Mountain Time)
-- **Data mapping**: gate_start (entries) and gate_end (exits) columns
-- **Hourly distribution**: Resolved timezone issues for proper hourly traffic analysis
+### ✅ LibInsights API Integration - **COMPLETED** 
+- **Direct API Import**: Automated POST to LibInsights gate-count endpoint
+- **Batch Processing**: Efficient upload in configurable batch sizes
+- **Gate ID Mapping**: Automatic mapping of VEA sensors to LibInsights gates
+- **Credential Security**: Encrypted storage of API credentials
+- **Full Pipeline**: VEA extraction → CSV generation → LibInsights import in one command
+
+### LibInsights Gate ID Mapping
+| LibInsights Gate ID | LibInsights Name | VEA Sensor Name |
+|---------------------|------------------|-----------------|
+| 12 | West Wing Level 1 East Side | McKay_Library_Level_1_Main_Entrance_1 |
+| 13 | West Wing Level 1 West Side | McKay_Library_Level_1_New_Entrance |
+| 14 | West Wing Level 2 Stairs | McKay_Library_Level_2_Stairs |
+| 15 | West Wing Level 3 Bridge | McKay_Library_Level_3_Bridge |
+| 16 | West Wing Level 3 Stairs | McKay_Library_Level_3_Stairs |
 
 ## Data Processing Pipeline
 
-1. **🔐 Authentication**: Secure credential loading from Windows Credential Manager
+1. **🔐 VEA Authentication**: Secure credential loading from Windows Credential Manager
 2. **📅 Date Calculation**: Automatic range from Jan 1 (current year) to current date  
-3. **📡 API Extraction**: VEA zone data with hourly granularity (UTC timestamps)
+3. **📡 VEA API Extraction**: Zone data with hourly granularity (UTC timestamps)
 4. **🕒 Timezone Conversion**: UTC → Mountain Time for LibInsights compatibility
 5. **📊 CSV Generation**: Individual sensor files with proper date/time columns
 6. **🧹 Cleanup**: Remove duplicate files, maintain clean output directory
+7. **🔐 LibInsights Authentication**: OAuth 2.0 with encrypted credentials
+8. **📤 API Import**: Batch POST to LibInsights gate-count endpoint
 
 ## Conclusion
 
-✅ **Complete end-to-end automation** - VEA extraction to LibInsights import  
+✅ **Complete end-to-end automation** - VEA extraction to LibInsights API import  
 ✅ **Task Scheduler ready** - Hands-free daily operation  
-✅ **Production tested** - Timezone handling, data validation, error recovery  
+✅ **Production tested** - Timezone handling, data validation, error recovery
+✅ **Direct API integration** - No manual CSV uploads required  
 🔧 **Zero dependencies** - Pure PowerShell solution, no external tools required
 
-**Result**: Fully operational pipeline for automated daily extraction of VEA sensor data and LibInsights import preparation.
+**Result**: Fully operational pipeline for automated daily extraction of VEA sensor data and direct LibInsights API import.
