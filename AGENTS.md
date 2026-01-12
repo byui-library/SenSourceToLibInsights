@@ -4,11 +4,15 @@
 
 ### Main Pipeline Execution
 - **Full pipeline (VEA + LibInsights)**: `run_full_pipeline.bat` (extracts VEA data and imports to LibInsights)
+- **Daily pipeline (scheduled)**: `run_daily_pipeline.bat` (extracts yesterday's data and imports - for Task Scheduler)
 - **VEA extraction only**: `run_export.bat` (runs VEA data extraction and CSV conversion)
 - **LibInsights import only**: `run_import.bat` (imports existing CSVs to LibInsights)
 - **Setup**: `setup.bat` (configures secure VEA credentials)
 
 ### PowerShell Script Execution
+- **Daily export (yesterday)**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-VEA-Export.ps1"`
+- **Daily export (specific date)**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-VEA-Export.ps1" -SpecificDate "2026-01-10"`
+- **Daily import**: `powershell -ExecutionPolicy Bypass -File "scripts\Daily-LibInsights-Import.ps1"`
 - **Individual sensor extraction**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1"` (generates both JSON and CSV files)
 - **Custom date extraction (parameter)**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1" -StartDate "2025-10-21T00:00:00Z" -EndDate "2025-12-31T23:59:59Z"`
 - **Custom date extraction (interactive)**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor-Custom.ps1"`
