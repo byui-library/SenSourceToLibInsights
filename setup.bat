@@ -1,5 +1,4 @@
 @echo off
-setlocal enabledelayedexpansion
 REM =============================================================================
 REM Secure API Setup Script
 REM =============================================================================
@@ -27,25 +26,24 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Test if VEA credentials exist AND work
+REM =============================================================================
+REM STEP 1: VEA API Credentials
+REM =============================================================================
+
 echo Testing existing VEA credentials...
 powershell -ExecutionPolicy Bypass -File "scripts\test-credentials-simple.ps1" >nul 2>&1
 if %errorlevel% equ 0 (
     echo VEA credentials already configured and working.
-    echo.
-    goto :libinsights_setup
+    goto :step2_libinsights
 )
 
 echo VEA credentials not found or not working.
-echo Setting up new VEA credentials...
-
-REM Get VEA credentials from user
 echo.
 echo Please enter your VEA API credentials:
 echo.
-set /p "CLIENT_ID=Client ID (UUID format): "
+set /p "CLIENT_ID=VEA Client ID (UUID format): "
 echo.
-set /p "CLIENT_SECRET=Client Secret: "
+set /p "CLIENT_SECRET=VEA Client Secret: "
 
 echo.
 echo Setting up VEA credentials securely...
@@ -55,19 +53,17 @@ if errorlevel 1 (
     echo.
     echo ERROR: VEA credential setup failed
     echo Please check your credentials and try again.
-    echo.
-    echo Make sure you entered:
-    echo - A valid Client ID (UUID format like 12345678-1234-1234-1234-123456789012)
-    echo - A valid Client Secret (long string, typically 30+ characters)
-    echo.
     pause
     exit /b 1
 )
 
-echo.
 echo VEA credentials saved successfully.
 
-:libinsights_setup
+REM =============================================================================
+REM STEP 2: LibInsights API Credentials
+REM =============================================================================
+
+:step2_libinsights
 echo.
 echo ====================================================
 echo STEP 2: LibInsights API Credentials
@@ -75,13 +71,14 @@ echo ====================================================
 echo.
 
 REM Check if LibInsights credentials already exist
-set "RECONFIGURE=n"
-if exist "scripts\libinsights_credentials.xml" (
-    echo LibInsights credentials file found.
-    set /p "RECONFIGURE=Do you want to reconfigure LibInsights credentials? [y/N]: "
-    if /i not "!RECONFIGURE!"=="y" goto :setup_complete
-)
+if not exist "scripts\libinsights_credentials.xml" goto :prompt_libinsights
 
+echo LibInsights credentials file already exists.
+set /p "RECONFIGURE=Reconfigure LibInsights credentials? [y/N]: "
+if /i "%RECONFIGURE%"=="y" goto :prompt_libinsights
+goto :setup_done
+
+:prompt_libinsights
 echo.
 echo Please enter your LibInsights API credentials:
 echo.
@@ -102,7 +99,7 @@ if errorlevel 1 (
 
 echo LibInsights credentials saved successfully.
 
-:setup_complete
+:setup_done
 echo.
 echo ====================================================
 echo ALL CREDENTIALS CONFIGURED!
