@@ -156,20 +156,35 @@ function Import-CsvToRecords {
     )
     
     $records = @()
+    $skippedZeros = 0
     $csvData = Import-Csv -Path $CsvPath
     
     foreach ($row in $csvData) {
+        $gateStart = [int]$row.gate_start
+        $gateEnd = if ($row.gate_end) { [int]$row.gate_end } else { 0 }
+        
+        # Skip records where both gate_start and gate_end are 0
+        # LibInsights API rejects these with 400 Bad Request
+        if ($IncludeGateEnd -and $gateStart -eq 0 -and $gateEnd -eq 0) {
+            $skippedZeros++
+            continue
+        }
+        
         $record = @{
             gate_id = $GateId
             date = $row.date
-            gate_start = [int]$row.gate_start
+            gate_start = $gateStart
         }
         
         if ($IncludeGateEnd -and $row.gate_end) {
-            $record.gate_end = [int]$row.gate_end
+            $record.gate_end = $gateEnd
         }
         
         $records += $record
+    }
+    
+    if ($skippedZeros -gt 0) {
+        Write-Host "    Skipped $skippedZeros zero-traffic records" -ForegroundColor Gray
     }
     
     return $records

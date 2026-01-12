@@ -10,10 +10,12 @@
 
 ### PowerShell Script Execution
 - **Individual sensor extraction**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1"` (generates both JSON and CSV files)
-- **Custom date extraction**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor-Custom.ps1"`
+- **Custom date extraction (parameter)**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor.ps1" -StartDate "2025-10-21T00:00:00Z" -EndDate "2025-12-31T23:59:59Z"`
+- **Custom date extraction (interactive)**: `powershell -ExecutionPolicy Bypass -File "scripts\VEA-Zone-Extractor-Custom.ps1"`
 - **LibInsights import**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1"`
 - **LibInsights import (dry run)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -DryRun`
 - **LibInsights import (gate counts only)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -GateCountsOnly`
+- **LibInsights import (occupancy only)**: `powershell -ExecutionPolicy Bypass -File "scripts\LibInsights-Importer.ps1" -OccupancyOnly`
 
 ### Credential Management
 - **VEA interactive setup**: `setup.bat` (prompts for VEA credentials)

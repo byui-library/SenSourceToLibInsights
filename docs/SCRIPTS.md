@@ -17,10 +17,23 @@ This document explains how each script works in the VEA to Springshare data pipe
 6. **Output**: Creates both JSON data files and Springshare-ready CSV files
 
 **Default Behavior** (No Parameters Required):
-- Automatically extracts last 7 days of data
+- Automatically extracts current year to date
 - Uses secure credential storage (no manual configuration needed)
 - Generates friendly file names using "West Wing" convention
 - Creates dual CSV formats: gate counts and occupancy data
+
+**Custom Date Range**:
+```powershell
+# Extract specific date range
+.\VEA-Zone-Extractor.ps1 -StartDate "2025-10-21T00:00:00Z" -EndDate "2025-12-31T23:59:59Z"
+```
+
+**Parameters**:
+- `-StartDate`: ISO-8601 format start date (optional, defaults to Jan 1 current year)
+- `-EndDate`: ISO-8601 format end date (optional, defaults to current date)
+- `-DataType`: Data type to extract (default: "traffic")
+- `-DateGrouping`: Grouping interval (default: "hour")
+- `-GateMethod`: Gate counting method (default: "Bidirectional")
 
 **Credential Management**:
 The script automatically retrieves credentials from secure storage:
@@ -192,6 +205,11 @@ Add `-Verbose` parameter to any script for detailed logging:
 - **Endpoint**: POST /gate-count/{dataset_id}/save
 - **Dataset ID**: 43702 (SenSource Gate Count By Entrance)
 - **Format**: JSON array with gate_id, date, gate_start, gate_end (optional)
+
+**Data Handling**:
+- Zero-traffic records (gate_start=0 AND gate_end=0) are automatically skipped for occupancy imports
+- LibInsights API rejects records where both values are zero
+- Duplicate records are rejected by the API (idempotent imports)
 
 ---
 

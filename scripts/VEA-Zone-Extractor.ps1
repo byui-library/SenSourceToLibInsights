@@ -1,7 +1,9 @@
 param(
     [string]$DataType = "traffic",
     [string]$DateGrouping = "hour",
-    [string]$GateMethod = "Bidirectional"
+    [string]$GateMethod = "Bidirectional",
+    [string]$StartDate = "",
+    [string]$EndDate = ""
 )
 
 # Load required modules
@@ -54,13 +56,19 @@ function Get-AutomaticDateRange {
     }
 }
 
-# Calculate automatic date range for current year
-Write-Host "Calculating automatic date range for current year..." -ForegroundColor Cyan
-$dateRange = Get-AutomaticDateRange
-$StartDate = $dateRange.StartDate
-$EndDate = $dateRange.EndDate
-Write-Host "Auto Start Date: $StartDate" -ForegroundColor Gray
-Write-Host "Auto End Date: $EndDate" -ForegroundColor Gray
+# Calculate automatic date range for current year (or use provided dates)
+if ([string]::IsNullOrWhiteSpace($StartDate) -or [string]::IsNullOrWhiteSpace($EndDate)) {
+    Write-Host "Calculating automatic date range for current year..." -ForegroundColor Cyan
+    $dateRange = Get-AutomaticDateRange
+    $StartDate = $dateRange.StartDate
+    $EndDate = $dateRange.EndDate
+    $DateRangeMode = "Automatic: Current Year"
+} else {
+    Write-Host "Using custom date range..." -ForegroundColor Cyan
+    $DateRangeMode = "Custom"
+}
+Write-Host "Start Date: $StartDate" -ForegroundColor Gray
+Write-Host "End Date: $EndDate" -ForegroundColor Gray
 
 # Validate script parameters
 $paramValidation = [VeaValidator]::TestScriptParameters(@{
@@ -463,16 +471,7 @@ Write-Host "=" * 60 -ForegroundColor Green
 Write-Host "ZONE-BASED EXTRACTION COMPLETE" -ForegroundColor Green
 Write-Host "=" * 60 -ForegroundColor Green
 
-# Check if using automatic dates
-$currentDate = [DateTime]::Now
-$startOfYear = [DateTime]::new($currentDate.Year, 1, 1, 0, 0, 0, [DateTimeKind]::Utc)
-$autoStartDate = $startOfYear.ToString("yyyy-MM-ddTHH:mm:ssZ")
-$endOfDay = [DateTime]::new($currentDate.Year, $currentDate.Month, $currentDate.Day, 23, 59, 59, [DateTimeKind]::Utc)
-$autoEndDate = $endOfDay.ToString("yyyy-MM-ddTHH:mm:ssZ")
-
-$dateRangeType = if ($StartDate -eq $autoStartDate -and $EndDate -eq $autoEndDate) { " (Automatic: Current Year)" } else { " (Custom)" }
-
-Write-Host "Date Range: $StartDate to $EndDate$dateRangeType" -ForegroundColor White
+Write-Host "Date Range: $StartDate to $EndDate ($DateRangeMode)" -ForegroundColor White
 Write-Host "Gate Method: $GateMethod" -ForegroundColor White
 Write-Host "Successful extractions: $SuccessCount / $($Zones.Count)" -ForegroundColor White
 

@@ -70,12 +70,14 @@ This will prompt you to enter custom start/end dates, or use automatic dates.
 
 You can also run scripts directly:
 ```powershell
-# Automatic dates (default - full current year)
+# Automatic dates (default - current year to date)
 .\scripts\VEA-Zone-Extractor.ps1
+
+# Custom date range (e.g., full 2025 baseline)
+.\scripts\VEA-Zone-Extractor.ps1 -StartDate "2025-10-21T00:00:00Z" -EndDate "2025-12-31T23:59:59Z"
 
 # Custom dates with interactive prompts
 .\scripts\VEA-Zone-Extractor-Custom.ps1
-.\scripts\VEA-Zone-Extractor.ps1 -StartDate "2025-01-01T00:00:00Z" -EndDate "2025-12-31T23:59:59Z"
 ```
 
 ## 🕒 Windows Task Scheduler Setup
