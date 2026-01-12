@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 REM =============================================================================
 REM Secure API Setup Script
 REM =============================================================================
@@ -26,26 +27,19 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Test if credentials exist AND work
-echo Testing existing credentials...
+REM Test if VEA credentials exist AND work
+echo Testing existing VEA credentials...
 powershell -ExecutionPolicy Bypass -File "scripts\test-credentials-simple.ps1" >nul 2>&1
 if %errorlevel% equ 0 (
+    echo VEA credentials already configured and working.
     echo.
-    echo ====================================================
-    echo CREDENTIALS ALREADY CONFIGURED AND WORKING!
-    echo ====================================================
-    echo.
-    echo Your VEA API credentials are properly set up.
-    echo You can now run the export pipeline with: run_export.bat
-    echo.
-    pause
-    exit /b 0
+    goto :libinsights_setup
 )
 
-echo Existing credentials not found or not working.
-echo Setting up new credentials...
+echo VEA credentials not found or not working.
+echo Setting up new VEA credentials...
 
-REM Get credentials from user
+REM Get VEA credentials from user
 echo.
 echo Please enter your VEA API credentials:
 echo.
@@ -54,12 +48,12 @@ echo.
 set /p "CLIENT_SECRET=Client Secret: "
 
 echo.
-echo Setting up credentials securely...
+echo Setting up VEA credentials securely...
 powershell -ExecutionPolicy Bypass -File "scripts\setup-automated.ps1" -ClientId "%CLIENT_ID%" -ClientSecret "%CLIENT_SECRET%"
 
 if errorlevel 1 (
     echo.
-    echo ERROR: Credential setup failed
+    echo ERROR: VEA credential setup failed
     echo Please check your credentials and try again.
     echo.
     echo Make sure you entered:
@@ -71,17 +65,25 @@ if errorlevel 1 (
 )
 
 echo.
-echo ====================================================
-echo SETUP COMPLETE!
-echo ====================================================
-echo.
-echo Your VEA API credentials are now stored securely in Windows Credential Manager.
+echo VEA credentials saved successfully.
+
+:libinsights_setup
 echo.
 echo ====================================================
 echo STEP 2: LibInsights API Credentials
 echo ====================================================
 echo.
-echo Now setting up LibInsights API credentials...
+
+REM Check if LibInsights credentials already exist
+set "RECONFIGURE=n"
+if exist "scripts\libinsights_credentials.xml" (
+    echo LibInsights credentials file found.
+    set /p "RECONFIGURE=Do you want to reconfigure LibInsights credentials? [y/N]: "
+    if /i not "!RECONFIGURE!"=="y" goto :setup_complete
+)
+
+echo.
+echo Please enter your LibInsights API credentials:
 echo.
 set /p "LI_CLIENT_ID=LibInsights Client ID: "
 echo.
@@ -99,6 +101,8 @@ if errorlevel 1 (
 )
 
 echo LibInsights credentials saved successfully.
+
+:setup_complete
 echo.
 echo ====================================================
 echo ALL CREDENTIALS CONFIGURED!
