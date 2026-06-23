@@ -21,7 +21,7 @@ Complete guide for deploying the VEA to LibInsights pipeline on a Windows Server
 cd C:\Scripts
 
 # Clone the repository
-git clone https://github.com/matjmiles/SenSourceToLibInsights.git
+git clone https://github.com/byui-library/SenSourceToLibInsights.git
 cd SenSourceToLibInsights
 ```
 

@@ -12,7 +12,7 @@ Automated extraction of VEA (SenSource) sensor data and import to Springshare Li
 
 ```batch
 # 1. Clone repository
-git clone https://github.com/matjmiles/SenSourceToLibInsights.git
+git clone https://github.com/byui-library/SenSourceToLibInsights.git
 cd SenSourceToLibInsights
 
 # 2. Configure credentials (prompts for VEA + LibInsights)
